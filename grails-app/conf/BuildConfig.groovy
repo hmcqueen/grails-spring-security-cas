@@ -23,8 +23,8 @@ grails.project.dependency.resolution = {
 		}
 
 		compile 'org.jasig.cas.client:cas-client-core:3.2.1', {
-			excludes 'commons-codec', 'commons-logging', 'junit', 'log4j', 'opensaml', 'servlet-api',
-			         'spring-beans', 'spring-context', 'spring-core', 'spring-test', 'xmlsec'
+			excludes 'commons-codec', 'commons-logging', 'junit', 'log4j', 'servlet-api',
+			         'spring-beans', 'spring-context', 'spring-core', 'spring-test'
 		}
 	}
 

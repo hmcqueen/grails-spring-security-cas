@@ -20,7 +20,9 @@ import org.jasig.cas.client.proxy.Cas20ProxyRetriever
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl
 import org.jasig.cas.client.session.SingleSignOutFilter
 import org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+import org.jasig.cas.client.validation.Cas10TicketValidator;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator
+import org.jasig.cas.client.validation.Saml11TicketValidator;
 import org.springframework.security.cas.ServiceProperties
 import org.springframework.security.cas.authentication.CasAuthenticationProvider
 import org.springframework.security.cas.authentication.NullStatelessTicketCache
@@ -29,7 +31,7 @@ import org.springframework.security.cas.web.CasAuthenticationFilter
 
 class SpringSecurityCasGrailsPlugin {
 
-	String version = '2.0-RC1'
+	String version = '2.0-RC2'
 	String grailsVersion = '2.0 > *'
 	List pluginExcludes = [
 		'docs/**',
@@ -154,11 +156,28 @@ class SpringSecurityCasGrailsPlugin {
 
 		casProxyRetriever(Cas20ProxyRetriever, conf.cas.serverUrlPrefix, conf.cas.serverUrlEncoding /*'UTF-8'*/)
 
-		casTicketValidator(Cas20ServiceTicketValidator, conf.cas.serverUrlPrefix) {
-			proxyRetriever = ref('casProxyRetriever')
-			proxyGrantingTicketStorage = ref('casProxyGrantingTicketStorage')
-			proxyCallbackUrl = conf.cas.proxyCallbackUrl
-			renew = conf.cas.sendRenew // false
+		switch (conf.cas.ticketValidator) {
+			case 'cas1.0':
+				casTicketValidator(Cas10TicketValidator, conf.cas.serverUrlPrefix)
+				break
+			case 'saml1.1':
+				casTicketValidator(Saml11TicketValidator, conf.cas.serverUrlPrefix) {
+					tolerance = conf.cas.saml.tolerance
+					renew = conf.cas.sendRenew
+				}
+				break
+			case 'cas2.0proxy':
+				casTicketValidator(Cas20ServiceTicketValidator, conf.cas.serverUrlPrefix) {
+					proxyRetriever = ref('casProxyRetriever')
+					proxyGrantingTicketStorage = ref('casProxyGrantingTicketStorage')
+					proxyCallbackUrl = conf.cas.proxyCallbackUrl
+					renew = conf.cas.sendRenew // false
+				}
+			case 'cas2.0':
+			default:
+				casTicketValidator(Cas20ServiceTicketValidator, conf.cas.serverUrlPrefix) {
+					renew = conf.cas.sendRenew // false
+				}
 		}
 
 		casStatelessTicketCache(NullStatelessTicketCache)

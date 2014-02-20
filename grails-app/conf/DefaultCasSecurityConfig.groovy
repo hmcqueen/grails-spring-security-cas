@@ -27,5 +27,7 @@ security {
 		proxyCallbackUrl = null // should be set, e.g. 'http://localhost:8080/myapp/secure/receptor'
 		proxyReceptorUrl = null // should be set, e.g. '/secure/receptor'
 		useSingleSignout = true
+		
+		saml.tolerance = 1000L
 	}
 }
